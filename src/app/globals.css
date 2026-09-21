@@ -1,0 +1,1162 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+	/* Todo lo que el chrome del dashboard le come al alto del viewport, para las
+	   pantallas que ocupan la ventana entera (POS, caja) y tienen que restarlo.
+
+	   Son tres términos, no uno: el `m-2` de arriba del SidebarInset (8px), el
+	   header (48px), y el `m-2` de abajo (8px) = 64px. Estaba escrito como el
+	   literal `4rem` en tres lugares, y el literal es correcto... hasta que
+	   colapsás el sidebar a íconos: ahí el header pasa a `h-16` por
+	   `group-has-data-[collapsible=icon]/sidebar-wrapper:h-16` (app-header.tsx),
+	   el chrome pasa a 80px y las pantallas se pasan 16px del viewport.
+
+	   Un literal que mide otros tres elementos no puede enterarse de que uno
+	   cambió. Esto sí: el override vive en el mismo selector que le cambia la
+	   altura al header. */
+	--app-chrome-h: 4rem;
+
+	/* El alto que la bottom nav de mobile le tapa al contenido. Estaba escrito a
+	   mano en dos lados (81px en el layout, 75px en tres pantallas), o sea la
+	   misma medida con dos valores, y las tres pantallas sumaban su despeje
+	   ENCIMA del que el layout ya reserva: 156px de vacío al pie del POS.
+	   Vive acá para que sea un solo número.
+
+	   Los 81px NO son un número a ojo: es la altura de contenido de la nav
+	   medida en el browser (borde 1 + py-3 + ícono 24 + mb-1 + text-xs). La nav
+	   no declara altura —es intrínseca—, así que este token la espeja, y hay un
+	   test de e2e que falla si dejan de coincidir. Si cambiás el padding o el
+	   tamaño de ícono de la nav, el test te manda acá.
+
+	   El despeje total suma el inset del home indicator, que la nav también se
+	   agrega con `.pb-safe`: los dos lados salen del mismo par de términos, así
+	   que no pueden desincronizarse. */
+	--bottom-nav-h: 81px;
+	--bottom-nav-clearance: calc(
+		var(--bottom-nav-h) +
+		env(safe-area-inset-bottom)
+	);
+
+	/* === COHESIÓN: Fondo unificado (sidebar + muted) === */
+	/* --inset: oklch(0.95 0 0);       */
+	/* NO es el fondo del main content —eso es --canvas—: es el gris callado que
+	   señala algo ARRIBA de una superficie blanca (hover y fila seleccionada de
+	   una tabla, chips, cajas de código). El comentario decía lo otro y nunca fue
+	   cierto: el main content usaba --background. */
+	--surface: oklch(0.9789 0 0);
+	--inset: oklch(0.95 0 0); /* El gris intermedio del frame */
+	--base: oklch(0.205 0.008 52);
+
+	/* GLOBAL */
+	/* Blanco, igual que la card: con el lienzo en gris, "superficie" es un solo
+	   rol y lo comparten el sidebar y las cards. Estaba en 0.965 (#F3F3F3), a dos
+	   puntos del lienzo, así que el sidebar se fundía con la pantalla y la única
+	   separación era el divider. */
+	--sidebar: oklch(1 0 0);
+	--muted: oklch(0.97 0 0); /* #F5F5F5 — mismo color, en el espacio del resto */
+
+	/* Fondo del contenedor de tabs (segmented). En claro es un gris apenas más
+	   oscuro que el background para dar contraste; en dark se aclara (ver .dark). */
+	--tab-list: oklch(0.94 0 0);
+
+	--border: oklch(0.9 0 0);
+	--sidebar-border: oklch(0.9 0 0);
+	--input: oklch(0.9 0 0);
+
+	--secondary: oklch(0.975 0 0);
+	--accent: oklch(0.975 0 0);
+	/* El hover de un control que se apoya en el LIENZO, no en una card.
+	   --accent está calibrado contra blanco: ahí separa 1.075, y sobre
+	   --canvas (0.98) cae a 1.015, o sea que el hover no existe. Todo el
+	   toolbar de una tabla vive sobre el lienzo, fuera de la card.
+
+	   0.955 y no 0.95 (--inset): 0.955 reproduce sobre el lienzo el MISMO
+	   salto que --accent da sobre blanco (1.076 contra 1.075), que es el
+	   hover que ya se ve bien. Y --inset en dark vale 0.145, a 1.016 del
+	   canvas oscuro: serviría en un tema y no en el otro.
+
+	   Mismo patrón de nombre que --sidebar-accent, que es esto para la otra
+	   superficie: un hover por superficie, no un gris para todas. */
+	--canvas-accent: oklch(0.955 0 0);
+	--sidebar-accent: oklch(0.97 0 0); /* hover: #F5F5F5, el gris del lienzo */
+
+	/* El relleno de un Skeleton. Token propio y no --accent, que es 0.975 y cae
+	   1.015 contra el canvas (0.98): el mismo agujero que obligó a declarar
+	   --canvas-accent para el hover. Un skeleton que no se ve sobre el lienzo no
+	   avisa nada, y además tiene que leerse igual adentro de una Card blanca.
+	   0.93 lo consigue en los dos: queda apenas más claro que --border (0.90),
+	   así que se lee como relleno y no como una caja con marco. */
+	--skeleton: oklch(0.93 0 0);
+
+	/* Ítem activo del sidebar. Token propio y NO --sidebar-accent, que es el hover
+	   y lo comparten el tenant header, el user button y el nav mobile: con un token
+	   compartido no se pueden tener las dos.
+
+	   La dirección se invirtió con el sidebar blanco: antes el activo era MÁS claro
+	   que el sidebar (se despegaba como una card sobre el gris) y ahora es más
+	   oscuro, porque sobre blanco no hay a dónde aclarar. El orden que importa es
+	   activo (0.945) más presente que hover (0.97); al revés, pasar el mouse por un
+	   ítem cualquiera lo dejaba más marcado que el que estás viendo. */
+	--sidebar-active: oklch(0.945 0 0); /* #EFEFEF */
+	--sidebar-active-border: #e3e3e3; /* un escalón más oscuro que el relleno */
+
+	--sidebar-divider-border: #40404033;
+	/* --sidebar-accent: oklch(0.94 0 0);  
+	 */
+	/* === CARD FLOTANTE: Blanco puro (sin tinte) === */
+	/* --background: oklch(99.336% 0.00316 15.246);                */
+	/* Blanco puro, y por eso mismo NO es la página: la página es --canvas. Este es
+	   el token de "superficie blanca" que usan los dialogs, las sticky bars, los
+	   botones outline y la pastilla activa de un riel. Estaba en #FDFDFD, que sobre
+	   el lienzo daba 5 puntos de contraste: un boton secundario casi no se
+	   despegaba del papel. Vale lo mismo que --card a proposito — son el mismo rol
+	   visto desde dos lados, y lo que los separa de verdad es --canvas. */
+	--background: oklch(1 0 0);
+
+	/* === CARDS: gris apenas por debajo del fondo (modelo shadcn) ===
+	   El fondo queda blanco (#FDFDFD) y la card se despega por ser más oscura,
+	   no al revés. Con --card: #fff eran indistinguibles en light.
+
+	   El escalón es NEUTRO, y eso es el punto. Antes decía esto mismo pero la
+	   card era `oklch(98.8% 0.004 52)`: contra un fondo #FDFDFD el canal R daba
+	   idéntico (253 y 253) y sólo bajaban G y B, o sea que no se despegaba por
+	   ser más oscura — se despegaba por ser crema. El mecanismo escrito no era
+	   el implementado, y el croma en hue 52 (el del primary) repartía el calor
+	   de la marca por todas las superficies de light: la pantalla entera medía
+	   R−B +6,6 y el acento no tenía silencio contra el cual leerse. En dark esto
+	   nunca pasó porque ahí `--background` y `--card` son croma 0 puro.
+
+	   Ahora el escalón es de luminosidad de verdad (0.9918 del fondo → 0.985) y
+	   sin tinte. La tinta sigue cálida (`--foreground`, hue 52), igual que en
+	   dark: el calor es del texto y del acento, no del papel. */
+	/* === LIENZO GRIS, CARDS BLANCAS (modelo Stripe / Shopify admin) ===
+
+	   El intento anterior era al revés (página blanca, card gris) y se veía en el
+	   home: con siete bloques grises tileados, el gris pasaba a ser la figura y
+	   el blanco quedaba reducido a los canales de 12 y 24px entre bloques, que
+	   se leían como costuras de dos grosores. Acá el gris es el papel y la card
+	   vuelve a ser lo que flota encima.
+
+	   `--background` NO se toca: sus 67 usos en `src/` no son "la página", son
+	   "la superficie blanca" —la pastilla activa de un riel, el fondo de un
+	   dialog, un input, una sticky bar—. El lienzo es UN elemento (el
+	   SidebarInset de `(dashboard)/layout.tsx`) y ahora tiene su propio token. */
+	/* Subió de 0.97: ahora vale lo mismo que --surface, y es a propósito — el gris
+	   que señala algo sobre una card y el lienzo donde apoya la card son el mismo
+	   tono. Lo que separa a la card del papel pasó a ser el borde, que por eso
+	   volvió a #E3E3E3. */
+	--canvas: oklch(0.98 0 0); /* #F8F8F8 — el lienzo del dashboard */
+	--card: oklch(1 0 0); /* blanco puro: la card es la figura */
+	--card-secondary: #fcfcfc;
+	/* Vuelve a #E3E3E3 después de haber estado en #EAEAEA. El razonamiento del
+	   valor claro —"el lienzo ya separa, el borde sólo define el canto"— es cierto
+	   en el dashboard y falso donde la card apoya sobre otra superficie blanca:
+	   adentro de un dialog no hay escalón de relleno y el borde queda solo. Ahí
+	   #EAEAEA da 1.20:1 y #E3E3E3 1.28:1. Un token cuyo valor correcto depende de
+	   sobre qué cae es una regla condicional, y esas se erosionan. */
+	--card-border: #e3e3e3;
+
+	--card-inner-border: #eeeeee;
+
+	--expense-alert: #fdf7f6;
+
+	/* Token de contraste: invierte con el tema. Light = tinta oscura (= --base),
+	   dark = blanco suave (= --foreground dark). El -foreground es su inverso,
+	   para texto legible encima. */
+	--contrast: oklch(0.205 0.008 52);
+	--contrast-foreground: oklch(0.97 0.004 52);
+
+	--popover: oklch(1 0 0); /* Consistente */
+
+	/* El canto de la card, ahora en sombra y no en borde. La primera capa es un
+	   hairline dibujado por fuera de la caja (spread 1px, sin blur) y la segunda
+	   la caída. Reemplaza al `border` + --card-border: sobre el lienzo gris el
+	   escalón de relleno ya separa, y donde la card apoya sobre blanco —adentro
+	   de un dialog— una caída funciona mejor que un hairline, porque no depende
+	   de que las dos superficies sean distintas.
+
+	   Un ring no ocupa layout, así que la card conserva el `border` en
+	   transparente: sin él, cambiar de borde a sombra le sacaría 2px de alto y
+	   de ancho a las 243 cards del repo. */
+	--card-ring-shadow: 0 0 0 1px oklch(0 0 0 / 0.04), 0 1px 3px
+		oklch(0 0 0 / 0.06);
+
+	--badge-brand-shadow: 0 1px 4px oklch(0 0 0 / 0.1);
+	--badge-brand: #fcf2e6;
+
+	/* === TINTA ===
+	   Toda la rampa neutra vive en hue 52 —el del primary— con una croma que
+	   sube a medida que baja el L. Antes el foreground era `oklch(0.145 0 0)`:
+	   #0A0A0A, negro puro y croma 0, el ÚNICO elemento sin tinte de una paleta
+	   donde las superficies ya tiraban a cálido. Un negro sin tinte sobre papel
+	   cálido no se lee como neutro, se lee como fuera de lugar.
+
+	   El L también sube de 0.145 a 0.20: 19.5:1 contra el fondo era un pozo, y
+	   17.8:1 sigue muy arriba del 7:1 que pide AAA. Los demás escalones NO
+	   cambian de L —sólo de notación y de tinte—, así que ningún contraste que
+	   ya estaba al filo se movió. */
+	--card-foreground: oklch(0.2 0.008 52);
+	--popover-foreground: oklch(0.2 0.008 52);
+	--popover-shadow: 0 4px 16px -2px oklch(0 0 0 / 0.12), 0 2px 4px -1px
+		oklch(0 0 0 / 0.08);
+
+	/* La marca es la quinta familia. No tenía `-surface` y por eso se hacía a
+	   mano con opacidad —`bg-primary/5 /10 /15 /20` y cinco tintes de borde—,
+	   que es exactamente el drift que la regla de las otras cuatro viene a
+	   impedir. La receta es la misma, con el tono de marca. */
+	--primary-hue: 52;
+	--primary: oklch(0.6 0.14 var(--primary-hue));
+	--primary-foreground: oklch(1 0 0);
+
+	--primary-vivid: oklch(0.68 0.18 var(--primary-hue));
+	--primary-vivid-foreground: oklch(0.35 0.12 var(--primary-hue));
+
+	/* Los tres venían en hex y en lab(), o sea la misma rampa escrita en tres
+	   espacios de color distintos: no se podían comparar entre sí. Mismo color
+	   en oklch, con el tinte de la familia. */
+	--secondary-foreground: oklch(0.3715 0.007 52);
+	/* L 0.535, y es la segunda vuelta del mismo error. Primero estaba en 0.556,
+	   calibrado contra --background y AA sólo ahí (4.74:1); sobre las otras
+	   superficies NEUTRAS caía —muted 4.35, sidebar 4.28, surface 4.54— y bajó a
+	   0.544 para cubrir las cuatro. Faltaba el mismo paso una superficie más
+	   allá: las TEÑIDAS. Sobre `--primary-surface-subtle` —la fila seleccionada
+	   de una tabla, el header de grupo de la cola de producción— 0.544 daba
+	   4.47:1, o sea que las celdas en gris débil de la fila con la que el usuario
+	   está trabajando eran las únicas que no pasaban.
+
+	   A 0.535 el peor caso del set completo es 4.65 (primary-surface-subtle) y el
+	   mejor 5.18 (lienzo, card, popover). La diferencia con 0.544 no se ve —nueve
+	   milésimas de L— y la distancia con el escalón fuerte (0.4828) sigue siendo
+	   legible como dos grises distintos.
+
+	   Dark no se toca: ahí el peor caso ya es 6.74:1.
+
+	   La moraleja del token, que es por qué esto pasó dos veces: el escalón débil
+	   no tiene headroom por diseño, así que CUALQUIER superficie nueva lo hunde.
+	   Una superficie teñida nueva se verifica contra este gris antes de entrar. */
+	--muted-foreground: oklch(0.535 0.006 52);
+	--muted-foreground-strong: oklch(0.4828 0.006 52);
+	--accent-foreground: oklch(0.205 0.008 52);
+	/* El fill rojo. Estaba en hue 27.325 y la familia en 25: el mismo rojo
+	   pintado dos veces con dos tonos, que es exactamente lo que el tono
+	   compartido viene a impedir. */
+	--destructive: oklch(0.577 0.245 var(--destructive-hue));
+	--destructive-foreground: oklch(1 0 0);
+	--ring: oklch(0.6 0.14 52);
+	--sidebar-foreground: oklch(0.2 0.008 52);
+	--sidebar-primary: oklch(0.205 0.008 52);
+	--sidebar-primary-foreground: oklch(0.97 0.004 52);
+	--sidebar-accent-foreground: oklch(0.205 0.008 52);
+	--sidebar-ring: oklch(0.708 0 0);
+	--foreground: oklch(0.2 0.008 52);
+
+	/* === CHARTS: Sin cambios === */
+	--chart-1: oklch(0.646 0.222 41.116);
+	--chart-2: oklch(0.6 0.118 184.704);
+	--chart-3: oklch(0.398 0.07 227.392);
+	--chart-4: oklch(0.828 0.189 84.429);
+	--chart-5: oklch(0.769 0.188 70.08);
+
+	/* === RADIUS & SHADOWS: Sin cambios === */
+	/* Fondo bajo los íconos de medio de pago del POS. Los SVG traen color
+	   propio y están dibujados para papel claro: el trazo es #26211E, que sobre
+	   el --card de dark desaparece. En light vale transparent —el tile ya es la
+	   superficie para la que se diseñaron— y en dark pone la hoja abajo.
+	   Borrar las dos declaraciones y la clase deja el handoff tal cual. */
+	--payment-icon-plate: transparent;
+
+	--radius: 0.625rem;
+	--shadow-x: 0px;
+	--shadow-y: 1px;
+	--shadow-blur: 2px;
+	--shadow-spread: 0px;
+	--shadow-opacity: 0.05;
+	--shadow-color: #000000;
+
+	/* === SEMANTIC COLORS ===
+   Cuatro roles por familia, sin excepciones. La regla larga vive en CLAUDE.md.
+
+     ink          texto o ícono teñido SOBRE la página. Es el DEFAULT: si dudás,
+                  es este. Mide ≥6.7:1 en las cuatro familias y los dos temas.
+     surface      superficie teñida y su borde. Derivadas de la tinta.
+     fill (--X)   fondo sólido saturado, y marca gráfica (dots, barras): por eso
+                  se le exige ≥3:1 contra la página, no sólo servir de fondo.
+
+   El cuarto rol, `-foreground` (el texto que va ENCIMA del fill), sobrevive sólo
+   en `destructive`, que es la única familia con un botón sólido de verdad. En las
+   otras tres no quedó un solo uso legítimo: los 86 que había eran tinta mal
+   pedida, y en dark valían blanco.
+
+   Antes esto eran 24 valores pintados a mano en dos temas, y como el rol `ink`
+   no tenía nombre, cada componente se lo inventaba: `success-alt` para verde,
+   `badge-*-foreground` prestado 53 veces, y tres comentarios distintos en el
+   repo explicando la misma trampa. */
+
+	/* El TONO: lo único pintado a mano, una vez por familia. Todo lo demás lo
+   referencia, así que un tono no puede driftear entre roles ni entre temas.
+
+   Por qué un `--X-hue` suelto y no `oklch(from var(--X-ink) L C h)`, que dice
+   lo mismo más lindo: la sintaxis de color relativo no la puede precalcular el
+   compilador (el build la deja cruda, sin fallback) y pide Chrome 119, ocho
+   meses por encima del piso que ya tiene el proyecto. Con el tono en un var, la
+   función es `oklch()` a secas —soportada desde Chrome 111, igual que el
+   color-mix() de más abajo— y la sustitución pasa antes del parseo. */
+	--success-hue: 150;
+	--destructive-hue: 25;
+	--warning-hue: 75;
+	--info-hue: 240;
+
+	/* Los tres roles teñidos, misma receta (L C) para las cuatro familias.
+   ink es además el color de texto accesible: ≥11:1 sobre la página en light. */
+	--success-ink: oklch(0.3 0.14 var(--success-hue));
+	/* Más vívida que las otras tres (C 0.21 contra 0.12-0.14) y a propósito: es la
+   única tinta que además carga los 145 mensajes de error de formulario, que
+   antes usaban el FILL `text-destructive` (4.58:1, al filo de AA). Con la tinta
+   de las otras familias —L 0.35, C 0.14— un error se leía apagado, que es lo
+   único que un error no puede leerse. 6.32:1 sobre la página, 4.96:1 sobre su
+   propia superficie. */
+	--destructive-ink: oklch(0.5 0.21 var(--destructive-hue));
+	--warning-ink: oklch(0.35 0.12 var(--warning-hue));
+	/* La marca tenía tres de los cuatro roles: surface, surface-subtle y el fill,
+   pero no la tinta. Por eso `text-primary` —que es el FILL usado como texto,
+   justo lo que la regla prohíbe y lo que ya se erradicó en destructive— vive en
+   4.03:1 sobre la página, abajo del 4.5 que pide un texto. No era un bug suelto:
+   el 3.72:1 de las iniciales del avatar del checkout era el mismo agujero, y
+   ninguno se podía arreglar porque el token legible no existía.
+   Misma receta que warning, que comparte el rango de hue: 11.40:1. */
+	--primary-ink: oklch(0.35 0.12 var(--primary-hue));
+	--info-ink: oklch(0.3 0.08 var(--info-hue));
+
+	--primary-surface: oklch(0.94 0.08 var(--primary-hue));
+	--primary-surface-border: oklch(0.88 0.1 var(--primary-hue));
+	--primary-surface-subtle: oklch(0.97 0.03 var(--primary-hue));
+	--primary-surface-subtle-border: oklch(0.9 0.05 var(--primary-hue));
+
+	--success-surface: oklch(0.94 0.08 var(--success-hue));
+	--destructive-surface: oklch(0.94 0.08 var(--destructive-hue));
+	--warning-surface: oklch(0.94 0.08 var(--warning-hue));
+	--info-surface: oklch(0.94 0.08 var(--info-hue));
+
+	--success-surface-border: oklch(0.88 0.1 var(--success-hue));
+	--destructive-surface-border: oklch(0.88 0.1 var(--destructive-hue));
+	--warning-surface-border: oklch(0.88 0.1 var(--warning-hue));
+	--info-surface-border: oklch(0.88 0.1 var(--info-hue));
+
+	/* Segundo nivel de superficie, más callado. No lo inventé: 60 lugares ya lo
+   usaban a mano como `bg-X/10 border-X/30` —callouts, filas resaltadas, badges
+   grandes— porque el rol `surface` sólo era alcanzable a través de un componente
+   de badge. Nombrarlo convierte 60 opacidades sueltas (que además driftearon a
+   /5, /15, /20, /45…) en una receta. La tinta mide ≥5.8:1 encima. */
+	--success-surface-subtle: oklch(0.97 0.03 var(--success-hue));
+	--destructive-surface-subtle: oklch(0.97 0.03 var(--destructive-hue));
+	--warning-surface-subtle: oklch(0.97 0.03 var(--warning-hue));
+	--info-surface-subtle: oklch(0.97 0.03 var(--info-hue));
+
+	--success-surface-subtle-border: oklch(0.9 0.05 var(--success-hue));
+	--destructive-surface-subtle-border: oklch(0.9 0.05 var(--destructive-hue));
+	--warning-surface-subtle-border: oklch(0.9 0.05 var(--warning-hue));
+	--info-surface-subtle-border: oklch(0.9 0.05 var(--info-hue));
+
+	/* Rol `fill`: fondo sólido saturado Y marca gráfica (dots, barras). Ese segundo
+   uso le impone ≥3:1 contra la página, que es lo que fija la L de acá: warning
+   estaba en 0.78 (1.98:1) e info en 0.70 (2.56:1), o sea que un punto de estado
+   ámbar era invisible sobre blanco. `success-alt` nació justo por esto — alguien
+   vio que bg-success no alcanzaba para un dot y hardcodeó un verde que sí. Con
+   el fill cumpliendo, ese parche ya no hace falta.
+   Bajar la L no aprieta ningún texto: no hay un solo lugar en la app que ponga
+   texto sobre un fill SÓLIDO. Los 16 que parecían serlo son `bg-X/10`, o sea el
+   rol surface hecho a mano. */
+	--success: oklch(0.64 0.14 var(--success-hue));
+	--warning: oklch(0.66 0.16 var(--warning-hue));
+	--error: oklch(0.65 0.2 var(--destructive-hue));
+	/* C 0.14 como las otras tres, y la L baja a 0.62 para pagar el contraste.
+   El C 0.04 anterior no compraba nada: a L 0.65 el gris daba 2.94:1 y el azul
+   pleno 2.93:1 —la croma no mueve la luminancia en este hue—, así que un dot
+   `info` al lado de uno `success` se leía "apagado vs prendido" en vez de "azul
+   vs verde" y no había contraste que lo justificara. A L 0.62 da 3.29:1 sobre el
+   lienzo y 3.58:1 sobre una card: el único fill que hoy cumple 3:1 en los dos.
+   No baja más porque C 0.14 en hue 240 se sale de sRGB abajo de L 0.62. */
+	--info: oklch(0.62 0.14 var(--info-hue));
+
+	--link: oklch(0.45 0.08 52);
+	--link-foreground: oklch(0.6 0.14 52);
+
+	/* === CANALES DE VENTA ===
+     Colores de marca ajena, no semántica: son el caso `--prod-*`, exento de las
+     cinco familias a propósito. Un pedido de Instagram no es un "warning", y
+     mapearlo a la familia más parecida mentiría sobre lo que el color dice.
+     Pero exento del sistema no es exento del contraste: estos tres se pintan
+     sobre el LABEL del badge, no sólo sobre el ícono, y los tres valores que
+     había —`text-green-600`, `text-yellow-500`, `text-pink-600`— daban
+     3.22:1, 1.87:1 y 4.49:1. El amarillo de Mercado Libre era ilegible.
+     Cada uno es el hue de la marca, con el L más alto que todavía pasa AA. */
+	--tiendanube: oklch(0.47 0.192 260); /* #0050C3 — 6.98:1 */
+	--whatsapp: oklch(0.54 0.14 145); /* 4.69:1 */
+	--mercadolibre: oklch(0.55 0.14 100); /* 4.71:1 */
+	--instagram: oklch(0.57 0.15 15); /* 4.75:1 */
+
+	/* === PRODUCTION STATES === */
+	--prod-pending: oklch(0.95 0.004 240);
+	--prod-pending-foreground: oklch(0.45 0.02 240);
+	--prod-pending-border: oklch(0.88 0.006 240);
+
+	/* Rojo — fallas / falta info */
+	--prod-falta-info: oklch(0.95 0.05 25);
+	--prod-falta-info-foreground: oklch(0.48 0.18 25);
+	--prod-falta-info-border: oklch(0.88 0.08 25);
+
+	/* Violeta — diseño nuevo */
+	--prod-diseno-nuevo: oklch(0.94 0.06 300);
+	--prod-diseno-nuevo-foreground: oklch(0.42 0.18 300);
+	--prod-diseno-nuevo-border: oklch(0.88 0.09 300);
+
+	/* Rosa — personalizar */
+	--prod-personalizar: oklch(0.94 0.05 350);
+	--prod-personalizar-foreground: oklch(0.48 0.16 350);
+	--prod-personalizar-border: oklch(0.89 0.08 350);
+
+	/* Azul — pretizado */
+	--prod-pretizado: oklch(0.95 0.05 255);
+	--prod-pretizado-foreground: oklch(0.45 0.15 255);
+	--prod-pretizado-border: oklch(0.89 0.08 255);
+
+	/* Verde — tizado */
+	--prod-tizado: oklch(0.94 0.06 145);
+	--prod-tizado-foreground: oklch(0.42 0.13 145);
+	--prod-tizado-border: oklch(0.87 0.09 145);
+
+	/* Verde — impreso (mismo verde que tizado) */
+	--prod-impreso: oklch(0.94 0.06 145);
+	--prod-impreso-foreground: oklch(0.42 0.13 145);
+	--prod-impreso-border: oklch(0.87 0.09 145);
+
+	/* Sin color asignado — se deja el teal actual */
+	--prod-ok-control-rollo: oklch(0.94 0.08 160);
+	--prod-ok-control-rollo-foreground: oklch(0.36 0.12 160);
+	--prod-ok-control-rollo-border: oklch(0.87 0.1 160);
+
+	/* Verde oscuro — ok llegó */
+	--prod-ok-llego: oklch(0.92 0.08 150);
+	--prod-ok-llego-foreground: oklch(0.3 0.13 150);
+	--prod-ok-llego-border: oklch(0.85 0.11 150);
+}
+
+.dark {
+	/* === SURFACE LAYERS (Linear/Vercel scale) === */
+	/* Escala: inset < background < surface < card/sidebar < muted/accent */
+	--inset: oklch(0.145 0 0);
+	--surface: oklch(0.15 0 0);
+	--background: oklch(0.13 0 0);
+	/* El problema espejo del claro: blanco puro sobre casi-negro. Mismo hue
+	   52 y un L apenas por debajo del tope, para que la tinta clara tampoco
+	   sea el único elemento sin familia. */
+	--foreground: oklch(0.97 0.004 52);
+
+	--base: oklch(1 0 0);
+
+	--contrast: oklch(0.97 0.004 52);
+	--contrast-foreground: oklch(0.205 0.008 52);
+
+	/* En dark el lienzo YA era el fondo: mismo valor que --background, así que
+	   el token existe para que `bg-canvas` resuelva, no para cambiar nada. */
+	--canvas: oklch(0.13 0 0);
+	--card: oklch(0.205 0 0);
+	--card-secondary: oklch(0.15 0 0);
+	--card-foreground: oklch(0.97 0.004 52);
+	/* La superficie del badge de marca. En light es un crema (#FCF2E6); sin este
+	   override lo heredaba tal cual en dark, o sea una pastilla casi blanca sobre
+	   la card oscura, con la tinta de marca encima a 3.08:1. Mismo hue 52 con el
+	   L de una superficie oscura: 1.14:1 contra la card —se despega apenas, como
+	   el resto de las superficies teñidas— y 7.55:1 contra `--link`. */
+	--badge-brand: oklch(0.26 0.05 52);
+
+	/* Borde sutil: blanco puro al 10% sobre el fondo oscuro (igual que --border). */
+	--card-border: oklch(1 0 0 / 10%);
+	/* El divisor de adentro de la card, un escalón más callado que --card-border
+	   —la misma relación que en light (#EEEEEE contra #E3E3E3)—. Sin este
+	   override heredaba el #EEEEEE de :root: un hairline casi blanco sobre la
+	   card oscura, 15.44:1, más contraste que el texto de cuerpo. */
+	--card-inner-border: oklch(1 0 0 / 6%);
+
+	/* Las dos capas se dan vuelta. El hairline pasa a blanco por lo mismo que
+	   --card-border acá arriba: negro al 4% sobre un fondo casi negro no existe,
+	   y la card se quedaría sin canto. La caída, al revés, SUBE — sobre oscuro
+	   una sombra al 6% tampoco se ve; 0.4 es lo que ya usa --popover-shadow. */
+	--card-ring-shadow: 0 0 0 1px oklch(1 0 0 / 0.08), 0 1px 3px
+		oklch(0 0 0 / 0.4);
+
+	--popover: oklch(0.17 0 0);
+	--popover-foreground: oklch(0.97 0.004 52);
+	--popover-shadow: 0 4px 16px -2px oklch(0 0 0 / 0.4), 0 2px 4px -1px
+		oklch(0 0 0 / 0.3);
+
+	--sidebar: oklch(0.205 0 0);
+	/* --sidebar-foreground: oklch(0.985 0 0); */
+	--sidebar-foreground: oklch(0.97 0.004 52);
+	--sidebar-border: oklch(1 0 0 / 8%);
+	--sidebar-accent: oklch(0.2 0 0);
+	/* En dark el activo va para el otro lado: se HUNDE (más negro que el sidebar
+	   #171717) en vez de aclararse. El borde sí se aclara, que es lo único que le
+	   da silueta sobre un fondo más oscuro. */
+	--sidebar-active: oklch(0.145 0 0);
+	--sidebar-active-border: oklch(0.24 0 0);
+	--sidebar-accent-foreground: oklch(0.97 0.004 52);
+	--sidebar-ring: oklch(0.55 0.14 52);
+
+	--secondary: oklch(0.2 0 0);
+	--secondary-foreground: oklch(0.97 0.004 52);
+
+	--muted: oklch(0.2 0 0);
+	--muted-foreground: oklch(0.708 0.005 52);
+	--muted-foreground-strong: oklch(0.7931 0.005 52);
+
+	/* En dark el contenedor de tabs se aclara respecto al fondo (0.13) para
+	   conservar el contraste — inverso al claro. */
+	--tab-list: oklch(0.27 0 0);
+
+	--accent: oklch(0.2 0 0);
+	--accent-foreground: oklch(0.97 0.004 52);
+	/* En dark el problema no existe: el canvas es 0.13 y --accent ya separa
+	   1.111 contra él. El token vale lo mismo que --accent para que
+	   `bg-canvas-accent` resuelva en los dos temas, no para cambiar nada. */
+	--canvas-accent: oklch(0.2 0 0);
+	/* En dark va al revés: el skeleton tiene que ser MÁS CLARO que la superficie
+	   que lo contiene (--card 0.15), no más oscuro. */
+	--skeleton: oklch(0.24 0 0);
+
+	--border: oklch(1 0 0 / 10%);
+	--input: oklch(1 0 0 / 10%);
+
+	/* === PRIMARY: Bronze — más brillante para dark === */
+	--payment-icon-plate: oklch(0.96 0.004 60);
+	--primary-hue: 52;
+	--primary: oklch(0.65 0.15 var(--primary-hue));
+	--primary-foreground: oklch(1 0 0);
+	--ring: oklch(0.65 0.15 52);
+
+	/* === SIDEBAR PRIMARY: Bronze === */
+	--sidebar-primary: oklch(0.65 0.15 52);
+	--sidebar-primary-foreground: oklch(0.12 0 0);
+
+	/* === DESTRUCTIVE === */
+	/* Era lab(63.7053% 60.745 31.3109) — la única notación lab de todo el
+	   archivo, y con el tono corrido a 22.8. Es el mismo color en oklch. */
+	--destructive: oklch(0.711 0.195 var(--destructive-hue));
+	--destructive-foreground: oklch(0.985 0 0);
+
+	/* === CHARTS: Familia bronze/warm === */
+	--chart-1: oklch(0.7 0.18 50);
+	--chart-2: oklch(0.65 0.12 180);
+	--chart-3: oklch(0.55 0.08 60);
+	--chart-4: oklch(0.78 0.16 85);
+	--chart-5: oklch(0.72 0.14 65);
+
+	/* === SEMANTIC ===
+	   Mismas cuatro tintas, mismos tonos, invertidas para fondo oscuro. La receta
+	   de surface/border también cambia por tema; lo que NO cambia es que cada
+	   tono se declara una sola vez. */
+	/* El verde de dark se corre a 160: el 150 de light, ya clareado, tira a lima.
+	   Es el único tono que cambia por tema, y cambia acá, en un solo lugar. */
+	--success-hue: 160;
+
+	--success-ink: oklch(0.8 0.12 var(--success-hue));
+	--destructive-ink: oklch(0.72 0.18 var(--destructive-hue));
+	--warning-ink: oklch(0.85 0.12 var(--warning-hue));
+	--primary-ink: oklch(0.85 0.12 var(--primary-hue));
+	--info-ink: oklch(0.78 0.1 var(--info-hue));
+
+	/* Los canales suben de L en dark por el mismo motivo que los `-ink`: el
+	   valor de light da 2.81:1 contra el fondo oscuro. `--tiendanube` no tenía
+	   override y era el único que ya estaba declarado. */
+	--tiendanube: oklch(0.59 0.192 260); /* 4.76:1 */
+	--whatsapp: oklch(0.57 0.14 145); /* 4.78:1 */
+	--mercadolibre: oklch(0.58 0.14 100); /* 4.75:1 */
+	--instagram: oklch(0.6 0.15 15); /* 4.72:1 */
+
+	--primary-surface: oklch(0.28 0.09 var(--primary-hue));
+	--primary-surface-border: oklch(0.36 0.11 var(--primary-hue));
+	--primary-surface-subtle: oklch(0.22 0.05 var(--primary-hue));
+	--primary-surface-subtle-border: oklch(0.3 0.07 var(--primary-hue));
+	--success-surface: oklch(0.28 0.09 var(--success-hue));
+	--destructive-surface: oklch(0.28 0.09 var(--destructive-hue));
+	--warning-surface: oklch(0.28 0.09 var(--warning-hue));
+	--info-surface: oklch(0.28 0.09 var(--info-hue));
+
+	--success-surface-border: oklch(0.36 0.11 var(--success-hue));
+	--destructive-surface-border: oklch(0.36 0.11 var(--destructive-hue));
+	--warning-surface-border: oklch(0.36 0.11 var(--warning-hue));
+	--info-surface-border: oklch(0.36 0.11 var(--info-hue));
+
+	--success-surface-subtle: oklch(0.22 0.05 var(--success-hue));
+	--destructive-surface-subtle: oklch(0.22 0.05 var(--destructive-hue));
+	--warning-surface-subtle: oklch(0.22 0.05 var(--warning-hue));
+	--info-surface-subtle: oklch(0.22 0.05 var(--info-hue));
+
+	--success-surface-subtle-border: oklch(0.3 0.07 var(--success-hue));
+	--destructive-surface-subtle-border: oklch(0.3 0.07 var(--destructive-hue));
+	--warning-surface-subtle-border: oklch(0.3 0.07 var(--warning-hue));
+	--info-surface-subtle-border: oklch(0.3 0.07 var(--info-hue));
+
+	/* En dark los fills ya llegan a 5.0-7.9:1 contra la card: no cambian de
+	   luminosidad, sólo se enganchan al tono compartido. */
+	--success: oklch(0.65 0.15 var(--success-hue));
+	--warning: oklch(0.75 0.14 var(--warning-hue));
+	--error: oklch(0.65 0.2 var(--destructive-hue));
+	/* Mismo criterio que light: era el único fill desaturado del set (C 0.08
+	   contra 0.15 y 0.20). La L no se toca, en dark ya daba 6.29:1. */
+	--info: oklch(0.68 0.15 var(--info-hue));
+
+	/* === LINKS === */
+	--link: oklch(0.78 0.14 52);
+	--link-foreground: oklch(0.75 0.14 52);
+
+	/* === SHADOWS === */
+	--shadow-opacity: 0.3;
+	--shadow-color: #000000;
+
+	/* === PRODUCTION STATES === */
+	--prod-pending: oklch(0.25 0.005 240);
+	--prod-pending-foreground: oklch(0.75 0.02 240);
+	--prod-pending-border: oklch(0.32 0.008 240);
+
+	/* Rojo — fallas / falta info */
+	--prod-falta-info: oklch(0.3 0.1 25);
+	--prod-falta-info-foreground: oklch(0.82 0.14 25);
+	--prod-falta-info-border: oklch(0.38 0.12 25);
+
+	/* Violeta — diseño nuevo */
+	--prod-diseno-nuevo: oklch(0.28 0.09 300);
+	--prod-diseno-nuevo-foreground: oklch(0.82 0.15 300);
+	--prod-diseno-nuevo-border: oklch(0.36 0.11 300);
+
+	/* Rosa — personalizar */
+	--prod-personalizar: oklch(0.29 0.08 350);
+	--prod-personalizar-foreground: oklch(0.83 0.13 350);
+	--prod-personalizar-border: oklch(0.37 0.1 350);
+
+	/* Azul — pretizado */
+	--prod-pretizado: oklch(0.28 0.08 255);
+	--prod-pretizado-foreground: oklch(0.8 0.12 255);
+	--prod-pretizado-border: oklch(0.36 0.1 255);
+
+	/* Verde — tizado */
+	--prod-tizado: oklch(0.28 0.08 145);
+	--prod-tizado-foreground: oklch(0.8 0.13 145);
+	--prod-tizado-border: oklch(0.36 0.1 145);
+
+	/* Verde — impreso (mismo verde que tizado) */
+	--prod-impreso: oklch(0.28 0.08 145);
+	--prod-impreso-foreground: oklch(0.8 0.13 145);
+	--prod-impreso-border: oklch(0.36 0.1 145);
+
+	/* Sin color asignado — se deja el teal actual */
+	--prod-ok-control-rollo: oklch(0.28 0.1 160);
+	--prod-ok-control-rollo-foreground: oklch(0.8 0.12 160);
+	--prod-ok-control-rollo-border: oklch(0.36 0.12 160);
+
+	/* Verde oscuro — ok llegó */
+	--prod-ok-llego: oklch(0.3 0.12 150);
+	--prod-ok-llego-foreground: oklch(0.85 0.16 150);
+	--prod-ok-llego-border: oklch(0.38 0.14 150);
+}
+
+@theme inline {
+	/* Único escalón tipográfico fuera de la escala de Tailwind, y declarado a
+	   propósito: los labels en mayúscula con tracking se leen más grandes que su
+	   tamaño nominal, así que 12px en versalitas pesa distinto que 12px en
+	   oración. Es un escalón con nombre y no un text-[11px] suelto para que no
+	   vuelvan a aparecer diez vecinos de medio píxel alrededor. */
+	--text-label: 11px;
+
+	--font-sans: "Geist", "Geist Fallback";
+	--font-mono: "Geist Mono", "Geist Mono Fallback";
+	--color-inset: var(--inset);
+	--color-surface: var(--surface);
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-canvas: var(--canvas);
+	--color-card: var(--card);
+	--color-card-border: var(--card-border);
+	--color-card-secondary: var(--card-secondary);
+	--color-card-foreground: var(--card-foreground);
+	--color-card-inner-border: var(--card-inner-border);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-vivid: var(--primary-vivid);
+	--color-primary-vivid-foreground: var(--primary-vivid-foreground);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-muted-foreground-strong: var(--muted-foreground-strong);
+	--color-tab-list: var(--tab-list);
+	--color-accent: var(--accent);
+	--color-canvas-accent: var(--canvas-accent);
+	--color-skeleton: var(--skeleton);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-payment-icon-plate: var(--payment-icon-plate);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-active: var(--sidebar-active);
+	--color-sidebar-active-border: var(--sidebar-active-border);
+	--color-sidebar-divider-border: var(--sidebar-divider-border);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+	--color-badge-brand: var(--badge-brand);
+	--color-expense-alert: var(--expense-alert);
+	--color-contrast: var(--contrast);
+	--color-contrast-foreground: var(--contrast-foreground);
+	--header-height: 64px;
+	--font-serif: "Source Serif 4", "Source Serif 4 Fallback";
+	/* computed shadow variables below - do not modify */
+	--shadow-2xs: var(--shadow-x) var(--shadow-y)
+		color-mix(
+			in srgb,
+			var(--shadow-color) calc(var(--shadow-opacity) * 100%),
+			transparent
+		);
+	--shadow-xs: var(--shadow-x) var(--shadow-y) var(--shadow-blur)
+		var(--shadow-spread)
+		color-mix(
+			in srgb,
+			var(--shadow-color) calc(var(--shadow-opacity) * 100%),
+			transparent
+		);
+	--shadow-sm: var(--shadow-x) var(--shadow-y) calc(var(--shadow-blur) * 1.5)
+		var(--shadow-spread)
+		color-mix(
+			in srgb,
+			var(--shadow-color) calc(var(--shadow-opacity) * 100%),
+			transparent
+		);
+	--shadow-md: calc(var(--shadow-x) * 2) calc(var(--shadow-y) * 2)
+		calc(var(--shadow-blur) * 3) calc(var(--shadow-spread) - 1px)
+		color-mix(
+			in srgb,
+			var(--shadow-color) calc(var(--shadow-opacity) * 100%),
+			transparent
+		);
+	--shadow-lg: calc(var(--shadow-x) * 4) calc(var(--shadow-y) * 4)
+		calc(var(--shadow-blur) * 5) calc(var(--shadow-spread) - 3px)
+		color-mix(
+			in srgb,
+			var(--shadow-color) calc(var(--shadow-opacity) * 100%),
+			transparent
+		);
+	--shadow-xl: calc(var(--shadow-x) * 6) calc(var(--shadow-y) * 6)
+		calc(var(--shadow-blur) * 7) calc(var(--shadow-spread) - 5px)
+		color-mix(
+			in srgb,
+			var(--shadow-color) calc(var(--shadow-opacity) * 100%),
+			transparent
+		);
+	--shadow-2xl: calc(var(--shadow-x) * 8) calc(var(--shadow-y) * 8)
+		calc(max(0px, var(--shadow-blur) * 9 - 8px))
+		calc(var(--shadow-spread) - 12px)
+		color-mix(
+			in srgb,
+			var(--shadow-color) calc(var(--shadow-opacity) * 250%),
+			transparent
+		);
+	--shadow: var(--shadow-md);
+	--color-shadow-color: var(--shadow-color);
+	--shadow-opacity: var(--shadow-opacity);
+	--shadow-spread: var(--shadow-spread);
+	--shadow-blur: var(--shadow-blur);
+	--shadow-y: var(--shadow-y);
+	--shadow-x: var(--shadow-x);
+	--shadow-badge-brand-shadow: var(--badge-brand-shadow);
+
+	/* Tinta: el default para texto/ícono teñido → text-success-ink, etc. */
+	--color-success-ink: var(--success-ink);
+	--color-destructive-ink: var(--destructive-ink);
+	--color-warning-ink: var(--warning-ink);
+	--color-info-ink: var(--info-ink);
+
+	/* Superficie teñida y su borde → bg-success-surface / border-success-surface-border */
+	--color-primary-surface: var(--primary-surface);
+	--color-primary-surface-border: var(--primary-surface-border);
+	--color-primary-surface-subtle: var(--primary-surface-subtle);
+	--color-primary-surface-subtle-border: var(--primary-surface-subtle-border);
+	--color-success-surface: var(--success-surface);
+	--color-destructive-surface: var(--destructive-surface);
+	--color-warning-surface: var(--warning-surface);
+	--color-info-surface: var(--info-surface);
+	--color-success-surface-border: var(--success-surface-border);
+	--color-destructive-surface-border: var(--destructive-surface-border);
+	--color-warning-surface-border: var(--warning-surface-border);
+	--color-info-surface-border: var(--info-surface-border);
+	--color-success-surface-subtle: var(--success-surface-subtle);
+	--color-destructive-surface-subtle: var(--destructive-surface-subtle);
+	--color-warning-surface-subtle: var(--warning-surface-subtle);
+	--color-info-surface-subtle: var(--info-surface-subtle);
+	--color-success-surface-subtle-border: var(--success-surface-subtle-border);
+	--color-destructive-surface-subtle-border: var(
+		--destructive-surface-subtle-border
+	);
+	--color-warning-surface-subtle-border: var(--warning-surface-subtle-border);
+	--color-info-surface-subtle-border: var(--info-surface-subtle-border);
+
+	--color-success: var(--success);
+	--color-warning: var(--warning);
+	--color-error: var(--error);
+	--color-info: var(--info);
+
+	/* Badge colors */
+
+	--color-link: var(--link);
+	--color-link-foreground: var(--link-foreground);
+	--color-primary-ink: var(--primary-ink);
+
+	--color-tiendanube: var(--tiendanube);
+	--color-whatsapp: var(--whatsapp);
+	--color-mercadolibre: var(--mercadolibre);
+	--color-instagram: var(--instagram);
+	--shadow-interactive: 0 1.5px 4px rgba(0, 0, 0, 0.15);
+	--shadow-interactive-hover: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+	--color-base: var(--base);
+
+	/* === PRODUCTION STATES === */
+	--color-prod-pending: var(--prod-pending);
+	--color-prod-pending-foreground: var(--prod-pending-foreground);
+	--color-prod-pending-border: var(--prod-pending-border);
+
+	--color-prod-falta-info: var(--prod-falta-info);
+	--color-prod-falta-info-foreground: var(--prod-falta-info-foreground);
+	--color-prod-falta-info-border: var(--prod-falta-info-border);
+
+	--color-prod-diseno-nuevo: var(--prod-diseno-nuevo);
+	--color-prod-diseno-nuevo-foreground: var(--prod-diseno-nuevo-foreground);
+	--color-prod-diseno-nuevo-border: var(--prod-diseno-nuevo-border);
+
+	--color-prod-personalizar: var(--prod-personalizar);
+	--color-prod-personalizar-foreground: var(--prod-personalizar-foreground);
+	--color-prod-personalizar-border: var(--prod-personalizar-border);
+
+	--color-prod-pretizado: var(--prod-pretizado);
+	--color-prod-pretizado-foreground: var(--prod-pretizado-foreground);
+	--color-prod-pretizado-border: var(--prod-pretizado-border);
+
+	--color-prod-tizado: var(--prod-tizado);
+	--color-prod-tizado-foreground: var(--prod-tizado-foreground);
+	--color-prod-tizado-border: var(--prod-tizado-border);
+
+	--color-prod-impreso: var(--prod-impreso);
+	--color-prod-impreso-foreground: var(--prod-impreso-foreground);
+	--color-prod-impreso-border: var(--prod-impreso-border);
+
+	--color-prod-ok-control-rollo: var(--prod-ok-control-rollo);
+	--color-prod-ok-control-rollo-foreground: var(
+		--prod-ok-control-rollo-foreground
+	);
+	--color-prod-ok-control-rollo-border: var(--prod-ok-control-rollo-border);
+
+	--color-prod-ok-llego: var(--prod-ok-llego);
+	--color-prod-ok-llego-foreground: var(--prod-ok-llego-foreground);
+	--color-prod-ok-llego-border: var(--prod-ok-llego-border);
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+
+	/* Custom scrollbar styling aligned with TALOS design system */
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: oklch(0.88 0.006 85) oklch(0.96 0.006 80);
+	}
+
+	*::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
+
+	*::-webkit-scrollbar-track {
+		background: oklch(0.96 0.006 80);
+		border-radius: 4px;
+	}
+
+	*::-webkit-scrollbar-thumb {
+		background: oklch(0.88 0.006 85);
+		border-radius: 4px;
+		border: 2px solid oklch(0.96 0.006 80);
+	}
+
+	*::-webkit-scrollbar-thumb:hover {
+		background: oklch(0.55 0.16 50);
+	}
+
+	/* Dark mode scrollbar */
+	.dark *::-webkit-scrollbar-track {
+		background: oklch(0.269 0 0);
+	}
+
+	.dark *::-webkit-scrollbar-thumb {
+		background: oklch(0.371 0 0);
+		border-color: oklch(0.269 0 0);
+	}
+
+	.dark *::-webkit-scrollbar-thumb:hover {
+		background: oklch(0.55 0.16 50);
+	}
+
+	.dark * {
+		scrollbar-color: oklch(0.371 0 0) oklch(0.269 0 0);
+	}
+}
+
+@layer components {
+	.group-data-\[side\=left\]\:border-r {
+		&:is(:where(.group)[data-side="left"] *) {
+			border-right-style: none !important;
+			border-right-width: none !important;
+		}
+	}
+
+	.card-bg {
+		border: none;
+		/* box-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 1px 3px oklch(0 0 0 / 0.04); */
+		/* background-color: oklch(0.985 0 0); */
+	}
+}
+
+/* Hide spin buttons for number inputs */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+input[type="number"] {
+	-moz-appearance: textfield;
+}
+
+@layer utilities {
+	/* El header pasa de h-12 a h-16 con el sidebar colapsado a íconos; el chrome
+	   sube de 64 a 80px. Mismo selector que usa app-header.tsx para cambiarlo. */
+	.group\/sidebar-wrapper:has([data-collapsible="icon"]) {
+		--app-chrome-h: 5rem;
+	}
+
+	/* El inset del home indicator. Existía como `pb-safe` vía el plugin
+	   `tailwindcss-safe-area` de Tailwind v3, que no sobrevivió a la migración a
+	   v4: la clase quedó escrita en tres archivos y NO emitía ninguna regla —
+	   medido en el browser, `padding-bottom` daba 0px. O sea la bottom nav venía
+	   apoyando su última fila contra la barra del sistema en cualquier iPhone
+	   con home indicator, sin que nada lo delatara.
+
+	   En un browser sin notch `env()` vale 0, así que en desktop no cambia nada
+	   y por eso no se notaba. */
+	.pb-safe {
+		padding-bottom: env(safe-area-inset-bottom);
+	}
+	.dashboard-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+		gap: 1.5em;
+	}
+	.width-container {
+		max-width: 1200px;
+		margin-inline: auto;
+		width: 100%;
+	}
+	@media screen and (max-width: 48rem) {
+		.dashboard-grid {
+			display: grid;
+			grid-template-columns: 100%;
+			gap: 1em;
+		}
+	}
+	@media screen and (min-width: 48rem) {
+		.recent-sales-grid {
+			display: grid;
+			grid-template-columns: auto auto 2fr auto auto auto auto;
+			justify-self: end;
+		}
+	}
+	@media screen and (max-width: 48rem) {
+		.width-container {
+			width: 90%;
+		}
+	}
+
+	.shadow-testing {
+		box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 3px;
+	}
+	.shadow-line {
+		box-shadow: oklch(0 0 0 / 0.015) 0px 1px 2px 0px, oklch(0 0 0 / 0.08) 0px
+			0px 0px 1px;
+	}
+
+	.stat-cards-grid {
+		display: grid;
+		grid-template-columns: repeat(4, min-content);
+	}
+
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+	.no-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+
+	/* Scroll interno discreto: sin riel, pulgar de 4px y sólo en hover.
+	   Para listas cortas embebidas en una card o un dialog —el extracto de
+	   puntos, las compras de la ficha del cliente—, donde la barra global de
+	   8px con track gris pesa más que la lista que está scrolleando.
+	   No es `.no-scrollbar`: escondiéndola del todo se pierde la única señal
+	   de que abajo hay más. */
+	/* La cantidad de la línea que acaba de entrar al carrito.
+	   
+	   Decae en vez de parpadear: si el cajero escaneó con los ojos en el producto
+	   no le cuesta nada, y si estaba mirando la lista es inequívoco. Un parpadeo
+	   pide atención dos veces; un decaimiento la acepta si está disponible.
+	   
+	   Los 600ms se salen de los 150ms de la escala de motion A PROPÓSITO, y por
+	   eso vive acá con nombre y no como un `duration-*` suelto en un className:
+	   no es una transición de estado —el elemento no cambió de estado, cambió el
+	   número que muestra— sino una señal que tiene que seguir visible el instante
+	   que tarda el ojo en volver a la pantalla. 150ms se pierde en ese viaje.
+	   
+	   Va sobre la CANTIDAD y no sobre la fila: cuando el producto ya estaba en el
+	   carrito, lo único que cambió es el número. Realzar la fila entera obliga a
+	   leerla para saber qué pasó. */
+	/* Altura de un control que se toca con el dedo.
+	   
+	   Existe porque las primitivas de shadcn no la tienen: `Button` define
+	   `sm: h-8`, `default: h-9` y `lg: h-10`, y ninguna llega a los 44px que
+	   piden Apple HIG y WCAG 2.5.5. Como el escalón no existía, cada llamador
+	   del POS inventaba el suyo: 8 alturas distintas en 38 lugares, y el MISMO
+	   control medía 48px en pago simple y 44 o 40 en pago dividido, sin nada
+	   que lo explicara.
+	   
+	   Van acá y no en `button.tsx`/`input.tsx` porque esos son vendor —el CLI de
+	   shadcn los repisa— y porque el escalón tiene que servirle igual a un
+	   Button, a un Input y a un SelectTrigger.
+	   
+	   Son DOS a propósito, y el segundo no es una excusa: en el pago dividido se
+	   apilan tres tramos con su medio, su monto y sus cuotas, así que el control
+	   se achica por densidad y no por descuido. Abajo de 44 no baja: los tiles
+	   del split estaban en 40, que no llega a ningún mínimo de plataforma.
+	   
+	   El CTA NO usa estos escalones: un botón de cobrar es más grande que un
+	   control (h-13 en la terminal, h-14 en el cobro) y eso es jerarquía, no
+	   target. */
+	/* La grilla de productos de la terminal.
+	   
+	   `auto-fill` y no una tabla de breakpoints: hasta acá eran 4 columnas fijas
+	   desde `lg`, así que en un all-in-one de 1920 no aparecían más productos —
+	   se agrandaban los que había, hasta ~310px por tile. Ahora el ancho decide
+	   cuántas entran, que es lo que uno espera de una pantalla más grande.
+	   
+   El mínimo es LA perilla de densidad de esta pantalla y está acá sola a
+	   propósito. NO se expone como control en la UI, y eso es deliberado: ningún
+	   POS de referencia lo hace. Shopify no deja tocar el tamaño del tile ni la
+	   tipografía —sólo QUÉ productos están en la grilla y en qué orden—, Square
+	   for Retail es una grilla fija de 3×3, y lo único que existe en el rubro es
+	   el toggle lista/grilla de Lightspeed, que es binario y no un slider.
+	   
+	   192px es el TECHO, no un gusto: es el valor más alto que todavía deja 4
+	   columnas en un notebook de 1280. A 220 ese caso caía a 3, que es menos de
+	   lo que había antes de todo esto. Da 4 de 192px en 1280, 4 de 226 en 1440 y
+	   6 de 218 en 1920.
+	   
+	   Si la densidad vuelve a molestar, la salida NO son presets: es una vista de
+	   lista. Una fila son ~40px contra los ~285 de un tile —7× la densidad— y la
+	   foto baja a thumbnail en vez de achicarse, que es donde ya viven
+	   `ProductImage` (72px) y la línea del carrito (32px).
+	   
+	   El `gap` queda en la escala (8px = el escalón `2`): es separación entre
+	   cards hermanas dentro de una grilla densa, no perímetro. */
+	.product-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(192px, 1fr));
+	}
+
+	.control-touch {
+		height: 3rem; /* 48px — el camino principal, un control por vez */
+	}
+
+	.control-touch-compact {
+		height: 2.75rem; /* 44px — el split, donde se apilan tres tramos */
+	}
+
+	.qty-landed {
+		animation: qty-landed 600ms ease-out;
+	}
+
+	@keyframes qty-landed {
+		from {
+			background-color: var(--primary-surface);
+		}
+		to {
+			background-color: transparent;
+		}
+	}
+
+	.scroll-subtle {
+		scrollbar-width: thin;
+		scrollbar-color: transparent transparent;
+	}
+	.scroll-subtle:hover,
+	.scroll-subtle:focus-within {
+		scrollbar-color: var(--border) transparent;
+	}
+	.scroll-subtle::-webkit-scrollbar {
+		width: 4px;
+		height: 4px;
+	}
+	.scroll-subtle::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	.scroll-subtle::-webkit-scrollbar-thumb {
+		background: transparent;
+		border: 0;
+		border-radius: 9999px;
+	}
+	.scroll-subtle:hover::-webkit-scrollbar-thumb,
+	.scroll-subtle:focus-within::-webkit-scrollbar-thumb {
+		background: var(--border);
+	}
+
+	.card-ring-shadow {
+		box-shadow: var(--card-ring-shadow);
+	}
+
+	.card-content-grid-rows {
+		grid-template-rows: 1fr 1fr;
+	}
+
+	.overflow-inherit {
+		overflow: inherit;
+	}
+}

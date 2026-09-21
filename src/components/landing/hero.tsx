@@ -4,8 +4,8 @@ import { site } from "@/lib/site";
 
 export function Hero() {
   return (
-    <section aria-labelledby="h1" className="grid border-b border-border md:grid-cols-[1.1fr_1fr]">
-      <div className="border-b border-border px-5 py-10 md:border-r md:border-b-0 md:px-9 md:pt-14 md:pb-13">
+    <section aria-labelledby="h1" className="grid border-b border-border lg:grid-cols-[1.1fr_1fr]">
+      <div className="border-b border-border px-5 py-10 md:px-9 lg:border-r lg:border-b-0 lg:pt-14 lg:pb-13">
         <div className="mb-6 flex flex-wrap items-center gap-2.5">
           <b className="rounded bg-badge-brand px-2 py-1 font-mono text-label font-medium tracking-[.08em] uppercase text-primary-ink">
             Hecho en Argentina
@@ -43,7 +43,7 @@ export function Hero() {
         </p>
       </div>
 
-      <div className="flex flex-col justify-center bg-surface px-4 py-6 md:px-7 md:py-9">
+      <div className="flex flex-col justify-center bg-surface px-4 py-6 md:px-9 md:py-8 lg:px-7 lg:py-9">
         <Ledger />
       </div>
     </section>

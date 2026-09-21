@@ -13,10 +13,10 @@ export function FinalCta() {
         </p>
       </div>
       <div className="flex flex-wrap gap-2.5">
-        <ButtonLink size="lg" href={site.whatsapp}>
+        <ButtonLink size="lg" href={site.whatsapp} className="max-sm:w-full">
           Empezá gratis 14 días
         </ButtonLink>
-        <ButtonLink size="lg" variant="outline" href={site.whatsapp}>
+        <ButtonLink size="lg" variant="outline" href={site.whatsapp} className="max-sm:w-full">
           Hablar por WhatsApp
         </ButtonLink>
       </div>

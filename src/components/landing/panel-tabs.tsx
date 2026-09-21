@@ -26,10 +26,12 @@ export function PanelTabs() {
 
   return (
     <div className="grid border-t border-border lg:grid-cols-[280px_1fr]">
+      {/* Abajo de lg son tres columnas iguales con solo el nombre; la descripción de la
+          activa va debajo. Con overflow-x la tercera quedaba fuera de pantalla sin aviso. */}
       <div
         role="tablist"
         aria-label="Vistas de la app"
-        className="flex overflow-x-auto border-b border-border lg:flex-col lg:border-r lg:border-b-0"
+        className="grid grid-cols-3 border-b border-border lg:flex lg:flex-col lg:border-r lg:border-b-0"
       >
         {tabs.map((t, i) => {
           const selected = t.id === active;
@@ -47,21 +49,25 @@ export function PanelTabs() {
               onClick={() => setActive(t.id)}
               onKeyDown={(e) => onKey(e, i)}
               className={cn(
-                "flex min-w-[180px] flex-1 flex-col gap-1 px-6 py-5 text-left lg:flex-none lg:border-b lg:border-border",
+                "flex min-w-0 flex-col gap-1 px-3 py-3.5 text-center lg:px-6 lg:py-5 lg:text-left lg:border-b lg:border-border",
+                "border-r border-border last:border-r-0 lg:border-r-0",
                 selected
                   ? "bg-card shadow-[inset_0_-3px_0_var(--primary)] lg:shadow-[inset_3px_0_0_var(--primary)]"
                   : "hover:bg-surface",
               )}
             >
-              <b className={cn("text-base font-semibold tracking-[-.01em]", selected ? "text-foreground" : "text-muted-foreground-strong")}>
+              <b className={cn("text-[15px] font-semibold tracking-[-.01em] lg:text-base", selected ? "text-foreground" : "text-muted-foreground-strong")}>
                 {t.label}
               </b>
-              <span className="text-[13.5px] leading-[1.45] text-muted-foreground-strong">{t.body}</span>
+              <span className="hidden text-[13.5px] leading-[1.45] text-muted-foreground-strong lg:block">{t.body}</span>
             </button>
           );
         })}
         <div className="hidden flex-1 bg-surface lg:block" />
       </div>
+      <p className="border-b border-border px-5 py-3.5 text-[13.5px] leading-[1.45] text-muted-foreground-strong lg:hidden">
+        {tabs.find((t) => t.id === active)?.body}
+      </p>
 
       <div className="flex items-end overflow-hidden bg-surface px-4 pt-6 md:px-7 md:pt-7">
         <div className="max-h-[440px] w-full overflow-hidden rounded-t-[10px] border border-b-0 border-card-border bg-card shadow-[var(--popover-shadow)]">

@@ -62,12 +62,12 @@ export function Plans() {
         </h2>
       </div>
 
-      <ul className="grid md:grid-cols-3">
+      <ul className="grid lg:grid-cols-3">
         {plans.map((p) => (
           <li
             key={p.name}
             className={cn(
-              "flex flex-col border-b border-border px-6 pt-7 pb-7 last:border-b-0 md:border-r md:border-b-0 md:px-7 md:last:border-r-0",
+              "flex flex-col border-b border-border px-6 pt-7 pb-7 last:border-b-0 md:px-9 lg:border-r lg:border-b-0 lg:px-7 lg:last:border-r-0",
               p.lead && "bg-card",
             )}
           >
@@ -92,7 +92,7 @@ export function Plans() {
                 </li>
               ))}
             </ul>
-            <ButtonLink variant={p.lead ? "primary" : "outline"} href={site.whatsapp} className="mt-auto w-full">
+            <ButtonLink variant={p.lead ? "primary" : "outline"} href={site.whatsapp} className="mt-auto w-full md:max-lg:w-auto md:max-lg:self-start">
               Empezá hoy
             </ButtonLink>
           </li>

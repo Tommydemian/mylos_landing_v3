@@ -34,34 +34,38 @@ export function Ledger() {
       className="overflow-hidden rounded-md border border-card-border bg-card font-mono text-xs shadow-[var(--popover-shadow)]"
       aria-label="Ejemplo de la operación de un día en MYLOS"
     >
-      <div className="flex justify-between gap-3 border-b border-card-inner-border px-3.5 py-2.5 text-label tracking-[.05em] uppercase text-muted-foreground">
+      <div className="flex items-baseline justify-between gap-3 border-b border-card-inner-border px-3.5 py-2.5 text-label tracking-[.05em] uppercase whitespace-nowrap text-muted-foreground">
         <b className="text-xs font-medium normal-case tracking-normal text-foreground">Hoy · 2 locales · 2 tiendas</b>
-        <span>un solo stock · 2 CUIT</span>
+        <span className="hidden sm:inline">un solo stock · 2 CUIT</span>
+        <span className="sm:hidden">2 CUIT</span>
       </div>
+      {/* Abajo de sm quedan hora, canal y monto; en sm entra el estado. La referencia
+          de la venta entra solo entre md y lg, donde el hero es de una columna y el
+          extracto ocupa todo el ancho: en el hero a dos celdas no hay lugar para cinco. */}
       {rows.map((r) => (
         <div
           key={r.ref}
-          className="grid grid-cols-[36px_1.1fr_.8fr_.8fr] items-center gap-2 border-b border-card-inner-border px-3.5 py-2.5 whitespace-nowrap tabular-nums last-of-type:border-b-0 md:grid-cols-[40px_1.45fr_.85fr_.75fr_1.2fr]"
+          className="grid grid-cols-[38px_1fr_auto] items-center gap-2.5 border-b border-card-inner-border px-3.5 py-2.5 whitespace-nowrap tabular-nums last-of-type:border-b-0 sm:grid-cols-[40px_1.15fr_.7fr_1.4fr] md:max-lg:grid-cols-[40px_1.3fr_.85fr_.7fr_1.35fr] lg:text-[11.5px]"
         >
           <span className="text-muted-foreground">{r.time}</span>
           <span className="flex min-w-0 items-center gap-1.5 overflow-hidden font-sans text-[12.5px] font-medium text-ellipsis">
             <i className={cn("size-2 shrink-0 rounded-[2px]", channelDot[r.channel])} />
             {r.where}
           </span>
-          <span>{r.ref}</span>
+          <span className="hidden md:max-lg:inline">{r.ref}</span>
           <span className="text-right">{r.amount}</span>
-          <span className={cn("hidden md:inline", r.status.kind === "ok" ? "text-success-ink" : "text-info-ink")}>
+          <span className={cn("hidden min-w-0 overflow-hidden text-ellipsis sm:inline", r.status.kind === "ok" ? "text-success-ink" : "text-info-ink")}>
             {r.status.kind === "ok" ? "✓ " : ""}
             {r.status.text}
           </span>
         </div>
       ))}
-      <div className="flex justify-between gap-3 border-t border-card-inner-border bg-surface px-3.5 py-2 text-label text-muted-foreground">
+      <div className="flex justify-between gap-3 border-t border-card-inner-border bg-surface px-3.5 py-2 text-label whitespace-nowrap text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <i className="size-1.5 rounded-full bg-success" />
-          Caja Palermo abierta · turno 2
+          Caja Palermo abierta<span className="hidden sm:inline"> · turno 2</span>
         </span>
-        <span>Stock sincronizado hace 12 s</span>
+        <span>Stock sync hace 12 s</span>
       </div>
     </div>
   );

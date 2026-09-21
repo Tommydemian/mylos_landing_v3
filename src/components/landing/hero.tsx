@@ -1,11 +1,12 @@
-import { ButtonLink, WhatsAppIcon } from "./button";
+import { ButtonLink } from "./button";
+import { WhatsAppIcon } from "./icons/whatsapp";
 import { Ledger } from "./ledger";
 import { site } from "@/lib/site";
 
 export function Hero() {
   return (
     <section aria-labelledby="h1" className="grid border-b border-border lg:grid-cols-[1.1fr_1fr]">
-      <div className="border-b border-border px-5 py-10 md:px-9 lg:border-r lg:border-b-0 lg:pt-14 lg:pb-13">
+      <div className="border-b border-border px-5 py-10 md:px-9 lg:border-r lg:border-b-0 lg:pt-18 lg:pb-16">
         <div className="mb-6 flex flex-wrap items-center gap-2.5">
           <b className="rounded bg-badge-brand px-2 py-1 font-mono text-label font-medium tracking-[.08em] uppercase text-primary-ink">
             Hecho en Argentina

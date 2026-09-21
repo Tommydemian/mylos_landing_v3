@@ -39,7 +39,7 @@ Planes tal cual (Esencial $50k / Pro $80k / Multi $150k, "Nunca frenamos una ven
 
 ## Orden de secciones
 
-hero → todo lo que MYLOS hace, sin recortar (ventas, stock, caja, egresos, proveedores, ARCA, multi-local, multi-CUIT) → fila de integraciones completa (Tiendanube, MercadoLibre, MercadoPago Point, Tango, Kommo, Mailjet) → logos → planes → FAQ.
+hero → todo lo que MYLOS hace (ventas, stock, caja, egresos, proveedores, ARCA, multi-local, multi-CUIT) → fila de integraciones completa (Tiendanube, MercadoLibre, MercadoPago Point, Kommo, Mailjet; Tango se sacó el 2026-09-21, irrelevante) → logos → planes → FAQ.
 
 ## Dirección visual elegida
 

@@ -1,0 +1,47 @@
+/* Estilos propios de la landing. globals.css viene de la app y no se edita:
+   lo que la landing necesita de más vive acá. */
+
+/* Fila nueva del extracto: entra desde arriba, sin rebote. */
+@keyframes ledger-row-in {
+	from {
+		opacity: 0;
+		transform: translateY(-6px);
+		background-color: var(--primary-surface-subtle);
+	}
+	40% {
+		opacity: 1;
+		transform: none;
+		background-color: var(--primary-surface-subtle);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+		background-color: transparent;
+	}
+}
+
+.ledger-row-in {
+	animation: ledger-row-in 1600ms ease-out;
+}
+
+/* Punto de "caja abierta": un latido cada 2 s. */
+@keyframes ledger-beat {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 color-mix(in oklch, var(--success) 45%, transparent);
+	}
+	50% {
+		box-shadow: 0 0 0 4px color-mix(in oklch, var(--success) 0%, transparent);
+	}
+}
+
+.ledger-beat {
+	animation: ledger-beat 2000ms ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ledger-row-in,
+	.ledger-beat {
+		animation: none;
+	}
+}

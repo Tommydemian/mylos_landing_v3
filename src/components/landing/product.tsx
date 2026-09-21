@@ -1,26 +1,29 @@
 import { ButtonLink } from "./button";
 import { SectionLabel } from "./section-label";
-import { PanelTabs } from "./panel-tabs";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/cn";
+import { TiendanubeIcon } from "./icons/tiendanube";
+import { MercadoLibreIcon } from "./icons/mercadolibre";
+import { StatusDot } from "./status-dot";
 
 type Feature = {
   key: string;
   title: string;
   body: string;
-  chips?: Array<{ label: string; dot: string }>;
+  // El local es el anillo bronce, el canal propio; las tiendas llevan su marca.
+  chips?: Array<{ label: string; mark: React.ReactNode }>;
 };
 
-// Todo lo que MYLOS hace, sin recortar.
+// Todo lo que MYLOS hace.
 const features: Feature[] = [
   {
     key: "Ventas",
     title: "Todos los canales, una lista",
     body: "Local, Tiendanube y MercadoLibre con canal, medio de pago y estado de envío.",
     chips: [
-      { label: "Local", dot: "bg-primary" },
-      { label: "Tiendanube", dot: "bg-tiendanube" },
-      { label: "MercadoLibre", dot: "bg-mercadolibre" },
+      { label: "Local", mark: <StatusDot tone="brand" hollow label="" className="mx-[3px]" /> },
+      { label: "Tiendanube", mark: <TiendanubeIcon className="size-3.5 text-tiendanube" /> },
+      { label: "MercadoLibre", mark: <MercadoLibreIcon className="size-3.5" /> },
     ],
   },
   { key: "Stock", title: "Uno solo, siempre preciso", body: "Se descuenta en cada venta y se sincroniza con tus tiendas. Sin quiebres ni conteos a mano." },
@@ -34,8 +37,8 @@ const features: Feature[] = [
 
 export function Product() {
   return (
-    <section id="producto" aria-labelledby="h-producto">
-      <SectionLabel aside="Sin recortar">Todo lo que MYLOS hace</SectionLabel>
+    <section id="producto" aria-labelledby="h-producto" className="border-b border-border">
+      <SectionLabel aside="Un solo sistema">Todo lo que MYLOS hace</SectionLabel>
 
       <div className="grid items-end gap-6 border-b border-border px-5 pt-10 pb-8 md:grid-cols-[1fr_auto] md:px-7 md:pt-11 md:pb-9">
         <div>
@@ -59,6 +62,7 @@ export function Product() {
               "flex min-h-[170px] flex-col border-b border-border px-5 py-5 lg:px-6 lg:pt-6 lg:pb-6.5",
               // Reglas: derecha salvo la última de cada fila; abajo salvo la última fila.
               "sm:[&:nth-child(odd)]:border-r lg:border-r lg:[&:nth-child(4n)]:border-r-0",
+              // La última fila cierra contra la regla de la sección siguiente.
               "lg:[&:nth-last-child(-n+4)]:border-b-0",
               i >= features.length - 2 && "sm:border-b-0",
             )}
@@ -73,7 +77,7 @@ export function Product() {
                     key={c.label}
                     className="inline-flex items-center gap-1.5 rounded-full border border-card-border bg-card py-[3px] pr-2 pl-[7px] text-xs font-medium"
                   >
-                    <i className={cn("size-[7px] rounded-[2px]", c.dot)} />
+                    {c.mark}
                     {c.label}
                   </span>
                 ))}
@@ -83,7 +87,6 @@ export function Product() {
         ))}
       </ul>
 
-      <PanelTabs />
     </section>
   );
 }

@@ -20,7 +20,7 @@ export function Logos() {
           <li
             key={b.alt}
             className={cn(
-              "flex min-h-24 items-center justify-center border-border px-4.5 py-6.5",
+              "flex min-h-20 items-center justify-center border-border px-4.5 py-5",
               "border-r [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(3n)]:border-r-0 lg:[&:nth-child(3n)]:border-r lg:last:border-r-0",
               i < 4 && "border-b sm:border-b-0",
               i < 3 && "sm:border-b lg:border-b-0",

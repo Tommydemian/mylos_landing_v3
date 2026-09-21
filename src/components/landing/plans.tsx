@@ -62,13 +62,17 @@ export function Plans() {
         </h2>
       </div>
 
+      {/* Pro sobresale: en lg se levanta por encima de la fila, con tapa redondeada,
+          ring y una regla bronce arriba. Abajo de lg solo queda la regla bronce. */}
       <ul className="grid lg:grid-cols-3">
         {plans.map((p) => (
           <li
             key={p.name}
             className={cn(
               "flex flex-col border-b border-border px-6 pt-7 pb-7 last:border-b-0 md:px-9 lg:border-r lg:border-b-0 lg:px-7 lg:last:border-r-0",
-              p.lead && "bg-card",
+              p.lead
+                ? "relative z-10 bg-card pt-8 shadow-[inset_0_3px_0_var(--primary)] lg:-mt-6 lg:rounded-t-lg lg:border-x lg:border-t lg:border-card-border lg:pt-9 lg:shadow-[inset_0_3px_0_var(--primary),var(--card-ring-shadow)]"
+                : "lg:pt-8",
             )}
           >
             <div className="mb-3.5 flex items-center justify-between gap-2.5">
@@ -80,7 +84,7 @@ export function Plans() {
               ) : null}
             </div>
             <div className="mb-3 flex items-baseline gap-2 tabular-nums">
-              <b className="text-[38px] leading-none font-semibold tracking-[-.035em]">{p.price}</b>
+              <b className={cn("leading-none font-semibold tracking-[-.035em]", p.lead ? "text-[44px]" : "text-[38px]")}>{p.price}</b>
               <span className="text-[13px] text-muted-foreground">/mes +IVA</span>
             </div>
             <p className="mb-4.5 min-h-[66px] text-[14.5px] text-muted-foreground-strong">{p.forWho}</p>

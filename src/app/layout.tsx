@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./landing.css";
 
 export const metadata: Metadata = {
   title: "MYLOS · Ventas, stock, caja y facturación para comercios",

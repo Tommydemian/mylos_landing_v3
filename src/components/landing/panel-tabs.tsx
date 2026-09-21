@@ -25,7 +25,7 @@ export function PanelTabs() {
   }
 
   return (
-    <div className="grid border-t border-border lg:grid-cols-[280px_1fr]">
+    <div className="grid lg:grid-cols-[280px_1fr]">
       {/* Abajo de lg son tres columnas iguales con solo el nombre; la descripción de la
           activa va debajo. Con overflow-x la tercera quedaba fuera de pantalla sin aviso. */}
       <div
@@ -69,8 +69,10 @@ export function PanelTabs() {
         {tabs.find((t) => t.id === active)?.body}
       </p>
 
-      <div className="flex items-end overflow-hidden bg-surface px-4 pt-6 md:px-7 md:pt-7">
-        <div className="max-h-[440px] w-full overflow-hidden rounded-t-[10px] border border-b-0 border-card-border bg-card shadow-[var(--popover-shadow)]">
+      {/* La captura sale del marco: pegada a la regla derecha y sin borde de ese
+          lado, como una hoja que sigue más allá de la página. */}
+      <div className="flex items-end overflow-hidden bg-surface pt-8 pl-4 md:pt-10 md:pl-8 lg:pt-12 lg:pl-10">
+        <div className="max-h-[560px] w-full overflow-hidden rounded-tl-[12px] border border-r-0 border-b-0 border-card-border bg-card shadow-[var(--popover-shadow)]">
           {tabs.map((t) => (
             <Image
               key={t.id}
@@ -84,7 +86,6 @@ export function PanelTabs() {
               sizes="(min-width: 1120px) 840px, 100vw"
               className="h-auto w-full"
               hidden={t.id !== active}
-              priority={t.id === "ventas"}
             />
           ))}
         </div>

@@ -1,6 +1,7 @@
 import { Nav } from "@/components/landing/nav";
 import { Hero } from "@/components/landing/hero";
 import { Product } from "@/components/landing/product";
+import { App } from "@/components/landing/app";
 import { Integrations } from "@/components/landing/integrations";
 import { Logos } from "@/components/landing/logos";
 import { Plans } from "@/components/landing/plans";
@@ -16,6 +17,7 @@ export default function Page() {
       <main id="top" className="mx-auto w-full max-w-[1120px] border-x border-border bg-canvas">
         <Hero />
         <Product />
+        <App />
         <Integrations />
         <Logos />
         <Plans />
